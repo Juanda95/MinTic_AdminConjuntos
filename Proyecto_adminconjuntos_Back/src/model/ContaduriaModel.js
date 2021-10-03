@@ -1,11 +1,10 @@
 const mongoose = require("mongoose");
 
 const ContaduriaSchema = mongoose.Schema({
-  "_id": Object,
-  "idNoticia": String,
-  "Titulo": String,
-  "cuerpo": String,
-  "fecha": String 
+  "idPago": String,
+  "Cedula": String,
+  "Fecha": String,
+  "Monto": String 
 });
 
 module.exports = mongoose.model("Contaduria", ContaduriaSchema);
