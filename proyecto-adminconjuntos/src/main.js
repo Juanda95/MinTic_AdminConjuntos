@@ -5,6 +5,13 @@ import vuetify from './plugins/vuetify'
 
 Vue.config.productionTip = false
 
+import axios from 'axios' 
+import VueAxios from 'vue-axios' 
+Vue.use(VueAxios, axios) 
+
+// Agregamos la URL base de nuestra API 
+axios.defaults.baseURL = 'http://localhost:2000/api';
+
 new Vue({
   router,
   vuetify,

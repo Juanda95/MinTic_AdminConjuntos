@@ -1,14 +1,14 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+//import Home from '../views/Home.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    name: 'Inicio sesion',
+    component: ()=> import('../views/Inicio_Sesion.vue')
   },
   {
     path: '/about',
@@ -19,10 +19,31 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
   },
   {
-    path: '/app',
-    name: 'App',
+    path: '/Home',
+    name: 'Home',
     component: () => import('../views/diseño.vue')
+  },
+  {
+    path: '/inicio',
+    name: 'Inicio',
+    component: () => import('../views/inicio.vue')
+  },
+  {
+    path: '/Contaduria',
+    name: 'Contaduria',
+    component: () => import('../views/Contaduria.vue')
+  },
+  {
+    path: '/Propietarios',
+    name: 'Propietarios',
+    component: () => import('../views/Propietarios.vue')
+  },
+  {
+    path: '/tabla',
+    name: 'tabla',
+    component: () => import('../views/tabla.vue')
   }
+
 ]
 const router = new VueRouter({
   mode: 'history',
