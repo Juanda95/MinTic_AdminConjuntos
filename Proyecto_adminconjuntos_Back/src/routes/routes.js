@@ -25,6 +25,7 @@ router.get("/Contaduria/all", ContaduriaController.getAll);
 router.get("/Contaduria/:id", ContaduriaController.getById);
 router.delete("/Contaduria/:id", ContaduriaController.deleteById);
 router.post("/Contaduria/", ContaduriaController.create);
-router.put("/Contaduria/:id/:val", ContaduriaController.updateById);
+router.put("/Contaduria/:id", ContaduriaController.updateById);
+router.get("/Contaduria/fecha/:fechaIni/:fechaFin", ContaduriaController.getByFecha);
 
 module.exports = router;
