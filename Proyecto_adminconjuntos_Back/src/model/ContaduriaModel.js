@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 
 const ContaduriaSchema = mongoose.Schema({
   "idPago": String,
-  "Cedula": String,
-  "Fecha": String,
+  "Cedula": Number,
+  "Fecha": Date,
   "Monto": String 
 });
 

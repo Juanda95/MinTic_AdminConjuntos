@@ -106,11 +106,7 @@
             </v-btn>
           </v-date-picker>
         </v-menu>
-        <v-spacer></v-spacer>
-        <v-spacer></v-spacer>
-        <v-spacer></v-spacer>
-        <v-spacer></v-spacer>
-        <v-spacer></v-spacer>
+
       </v-row>
       <v-row class="">
         <v-menu
@@ -148,13 +144,24 @@
             </v-btn>
           </v-date-picker>
         </v-menu>
+      </v-row>
+      <v-row>
         <v-spacer></v-spacer>
         <v-btn
           elevation="2"
           rounded
           color="purple"
-          class="white--text mx-auto mb-3 mt-6"
+          class="white--text  mb-3 mt-6"
           @click="initialize"
+        >
+          Cancelar
+        </v-btn>
+        <v-btn
+          elevation="2"
+          rounded
+          color="purple"
+          class="white--text ml-5 mb-3 mt-6"
+          @click="Filtro(picker,picker2)"
         >
           Aceptar
         </v-btn>
@@ -360,8 +367,6 @@ export default {
           align: "start",
           value: "Cedula",
         },
-        { text: "Apartamento", value: "apto" },
-        { text: "Torre", value: "torre" },
         { text: "Valor Pagado", value: "Monto" },
         { text: "Fecha", value: "Fecha" },
         { text: "Acciones", value: "actions", sortable: false },
@@ -405,12 +410,16 @@ export default {
       val || this.closeDelete();
     },
   },
+  mounted() {
+    this.initialize();
+  },
   methods: {
     initialize() {
       this.axios
         .get("/Contaduria/all")
         .then((res) => {
           console.log(res.data);
+
           this.datosPagos = res.data;
         })
         .catch((e) => {
@@ -542,26 +551,34 @@ export default {
           console.log(e.response);
         });
     },
-    editarNota(editedItem){
-            
-            this.axios.put(`/Contaduria/${editedItem._id}`, editedItem)
-            .then(res=>{
-                const index= this.datosPagos.findIndex(n=> n._id===res.data._id);
-                this.datosPagos[index].Cedula=res.data.Cedula;
-                this.datosPagos[index].Monto=res.data.Monto;
-                this.datosPagos[index].Fecha=res.data.Fecha;
+    editarNota(editedItem) {
+      this.axios
+        .put(`/Contaduria/${editedItem._id}`, editedItem)
+        .then((res) => {
+          const index = this.datosPagos.findIndex(
+            (n) => n._id === res.data._id
+          );
+          this.datosPagos[index].Cedula = res.data.Cedula;
+          this.datosPagos[index].Monto = res.data.Monto;
+          this.datosPagos[index].Fecha = res.data.Fecha;
+        })
+        .catch((e) => {
+          console.log(e.response);
+        });
+    },
+    Filtro(FechaIni, FechaFin) {
+      if(FechaIni)
+      this.axios
+      .get(`/Contaduria/fecha/${FechaIni}T00:00:00.000Z/${FechaFin}T23:00:00.000Z`)
+        .then((res) => {
+          console.log(res.data);
 
-
-            })
-            .catch(e=>{
-
-                console.log(e.response);
-
-            })
-
-
-
-        },
+          this.datosPagos = res.data;
+        })
+        .catch((e) => {
+          console.log(e.response);
+        });
+    },
   },
 };
 </script>
