@@ -45,11 +45,12 @@ module.exports = class UsuariosModel {
 
   static async updateById(request, response) {
     try {
-      const id = request.params.id;
+      const _id = request.params.id;
       const val = request.params.val;
       const document = request.body;
-      await Usuario.updateOne({"cedula": id}, {$set: {"borough": val}});
-      response.status(200).json();
+      const respuesta= await Usuario.findByIdAndUpdate(_id,document,{new:true});
+      //await Usuario.updateOne({"cedula": id}, {$set: {"borough": val}});
+      response.status(200).json(respuesta);
     } catch (err) {
       response.status(400).json({message: err.message})
     }

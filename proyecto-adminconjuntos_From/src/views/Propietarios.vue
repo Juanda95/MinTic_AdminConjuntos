@@ -17,7 +17,7 @@
             />
           </v-avatar>
           <h3 class="black--text ml-3 font-weight-bold headline" Roboto>
-            {{ usuario.tipoUsuario }}
+            Administrador
           </h3>
         </v-row>
         <v-row>
@@ -74,13 +74,16 @@
     </v-navigation-drawer>
 
     <v-card class="mx-auto mt-3" elevation="10" width="700">
+      <v-card-title>
+        <span class="text-h5">{{ formTitle }}</span>
+      </v-card-title>
       <v-form ref="form" v-model="form">
         <v-row class="px-10">
           <v-col cols="12" md="4">
             <v-text-field
-              v-model="editedItem.name"
+              v-model="editedItem.informacion.Nombre"
               :rules="nameRules"
-              :counter="20"
+              :counter="30"
               label="Nombre y Apellido"
               required
             ></v-text-field>
@@ -88,7 +91,7 @@
 
           <v-col cols="12" md="2">
             <v-text-field
-              v-model="editedItem.torre"
+              v-model="editedItem.informacion.Torre"
               :rules="torreRules"
               :counter="1"
               label="Torre"
@@ -98,7 +101,7 @@
 
           <v-col cols="12" md="6">
             <v-text-field
-              v-model="editedItem.correo"
+              v-model="editedItem.informacion.Correo"
               :rules="emailRules"
               label="Correo"
               required
@@ -108,7 +111,7 @@
         <v-row class="px-10">
           <v-col cols="12" md="4">
             <v-text-field
-              v-model="editedItem.cedulaCC"
+              v-model="editedItem.cedula"
               :rules="cedulaRules"
               type="number"
               :counter="10"
@@ -119,7 +122,7 @@
 
           <v-col cols="12" md="3">
             <v-text-field
-              v-model="editedItem.apto"
+              v-model="editedItem.informacion.Apartamento"
               :rules="apartamentoRules"
               type="number"
               :counter="3"
@@ -130,11 +133,10 @@
 
           <v-col cols="12" md="5">
             <v-text-field
-              box
               color="purple"
               label="Phone number"
               :rules="numeroRules"
-              v-model="editedItem.celular"
+              v-model="editedItem.informacion.Celular"
               type="text"
               maxlength="14"
               @input="acceptNumber"
@@ -146,21 +148,15 @@
       <v-divider></v-divider>
       <v-card-actions>
         <v-spacer></v-spacer>
-                <v-btn
-          text
-          color="purple"
-          @click="$refs.form.reset()"
-        >
+        <v-btn text color="purple" @click="close()">
           Limpiar
         </v-btn>
         <v-btn
           :disabled="!form"
-          :loading="isLoading"
           class="white--text"
           color="deep-purple accent-4"
           depressed
           @click="save"
-  
         >
           Aceptar
         </v-btn>
@@ -169,29 +165,28 @@
     <br />
     <v-data-table
       :headers="headers"
-      :items="desserts"
-      sort-by="cedulaCC"
+      :items="Propietarios"
+      sort-by="cedula"
       class="elevation-1"
     >
       <template v-slot:top>
-          
-          <v-dialog v-model="dialogDelete" max-width="500px">
-            <v-card>
-              <v-card-title class="ml-2 text-h5">
-                ¿Seguro que desea eliminar el Registro?</v-card-title
+        <v-dialog v-model="dialogDelete" max-width="500px">
+          <v-card>
+            <v-card-title class="ml-2 text-h5">
+              ¿Seguro que desea eliminar el Registro?</v-card-title
+            >
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="closeDelete"
+                >Cancelar</v-btn
               >
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="closeDelete"
-                  >Cancelar</v-btn
-                >
-                <v-btn color="blue darken-1" text @click="deleteItemConfirm"
-                  >OK</v-btn
-                >
-                <v-spacer></v-spacer>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
+              <v-btn color="blue darken-1" text @click="deleteItemConfirm"
+                >OK</v-btn
+              >
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </template>
       <template v-slot:[`item.actions`]="{ item }">
         <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
@@ -236,6 +231,7 @@ export default {
       phone: undefined,
       dialog: false,
       drawer: true,
+      dialogDelete: false,
       itemsResidente: [{ title: "Noticias", icon: "mdi-newspaper-variant" }],
       itemsAdmin: [
         { title: "Noticias", url: "Home", icon: "mdi-newspaper-variant" },
@@ -251,19 +247,23 @@ export default {
         },
       ],
       usuario: {
-        Nombre: "Juan",
-        Apellido: "Elkin",
-        tipoUsuario: "Administrador",
+        cedula: 648648444,
+        tipoUsuario: 1,
         admin: true,
-        Torre: "A",
-        Apartamento: 202,
+        informacion: {
+          Nombre: "Juan David Muñoz Velandia",
+          Correo: "Arq.juandavidmunoz@gmail.com",
+          Torre: "4",
+          Apartamento: "407",
+          Celular: "3116706261",
+          condominio: "agua bonita",
+        },
       },
       valid: true,
-      name: "",
       nameRules: [
         (v) => !!v || "Nombre y Apellido requerido",
         (v) =>
-          (v && v.length <= 20) ||
+          (v && v.length <= 30) ||
           "el campo debe de tener menos de 20 caracteres",
       ],
       email: "",
@@ -271,18 +271,16 @@ export default {
         (v) => !!v || "Correo requerido",
         (v) => /.+@.+\..+/.test(v) || "Correo no valido",
       ],
-      cedula: "",
       cedulaRules: [
         (v) => !!v || "Cedula requerida",
         (v) => (v && v.length <= 10) || "Max 10 caracteres",
         (v) => v.length == 10 || "Min 10 caracteres",
       ],
-      torre: "",
+      Torre: "",
       torreRules: [
         (v) => !!v || "Torre requerida",
         (v) => (v && v != " ") || "el campo debe ser diferente",
       ],
-      Apartamento: "",
       apartamentoRules: [
         (v) => !!v || "Apartamento requerido",
         (v) => (v && v.length <= 3) || "el campo debe de tener 3 caracteres",
@@ -290,48 +288,51 @@ export default {
       ],
       numero: "",
       numeroRules: [
-        (v) => !!v || "celular requerido",
-        (v) => (v && v.length <= 14) || "max 10 caracteres",
-        (v) => v.length >= 14 || "Min 10 caracteres",
+        (v) => !!v || "Celular requerido",
+        (v) => (v && v.length <= 10) || "max 10 caracteres",
+        (v) => v.length >= 10 || "Min 10 caracteres",
       ],
-    headers: [
+      headers: [
         {
           text: "Nombre",
           align: "start",
-          sortable: false,
-          value: "name",
+          value: "informacion.Nombre",
         },
-        { text: "Cedula", value: "cedulaCC" },
-        { text: "Torre", value: "torre" },
-        { text: "Apartamento", value: "apto" },
-        { text: "Correo", value: "correo" },
-        { text: "celular", value: "celular" },
+        { text: "Cedula", value: "cedula" },
+        { text: "Torre", value: "informacion.Torre" },
+        { text: "Apartamento", value: "informacion.Apartamento" },
+        { text: "Correo", value: "informacion.Correo" },
+        { text: "Celular", value: "informacion.Celular" },
         { text: "Acciones", value: "actions", sortable: false },
       ],
       basicRules: [(v) => !!v || "Name is required"],
-      desserts: [],
+      Propietarios: [],
       editedIndex: -1,
       editedItem: {
-        name: "",
-        cedulaCC: 0,
-        torre: 0,
-        apto: 0,
-        celular: 0,
-        correo: "",
+        cedula: 0,
+        informacion: {
+          Nombre: "",
+          Torre: 0,
+          Apartamento: 0,
+          Celular: 0,
+          Correo: "",
+        },
       },
       defaultItem: {
-        name: "",
-        cedulaCC: 0,
-        torre: 0,
-        apto: 0,
-        celular: 0,
-        correo: "",
+        cedula: 0,
+        informacion: {
+          Nombre: "",
+          Torre: 0,
+          Apartamento: 0,
+          Celular: 0,
+          Correo: "",
+        },
       },
     };
   },
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? "Nuevo Pago" : "Editar Pago";
+      return this.editedIndex === -1 ? "Nuevo Usuario" : "Editar Usuario";
     },
   },
 
@@ -344,9 +345,9 @@ export default {
     },
   },
 
-mounted(){
-  this.initialize();
-},
+  mounted() {
+    this.initialize();
+  },
 
   methods: {
     acceptNumber() {
@@ -358,117 +359,124 @@ mounted(){
         : "(" + x[1] + ") " + x[2] + (x[3] ? "-" + x[3] : "");
     },
     initialize() {
-      this.desserts = [
+      this.axios
+        .get("/Usuarios/all")
+        .then((res) => {
+          console.log(res.data);
+
+          this.Propietarios = res.data;
+        })
+        .catch((e) => {
+          console.log(e.response);
+        });
+      /* this.Propietarios = [
         {
-          name: "Frozen Yogurt",
-          cedulaCC: 159,
-          torre: 6.0,
+          Nombre: "Frozen Yogurt",
+          cedula: 159,
+          Torre: 6.0,
           apto: 24,
-          celular: 4.0,
-          correo: "sdsd@gnail.vom",
+          Celular: 4.0,
+          Correo: "sdsd@gnail.vom",
         },
         {
-          name: "Ice cream sandwich",
-          cedulaCC: 237,
-          torre: 9.0,
+          Nombre: "Ice cream sandwich",
+          cedula: 237,
+          Torre: 9.0,
           apto: 37,
-          celular: 4.3,
-          correo: "sdsd@gnail.vom",
+          Celular: 4.3,
+          Correo: "sdsd@gnail.vom",
         },
         {
-          name: "Eclair",
-          cedulaCC: 262,
-          torre: 16.0,
+          Nombre: "Eclair",
+          cedula: 262,
+          Torre: 16.0,
           apto: 23,
-          celular: 6.0,
-          correo: "sdsd@gnail.vom",
+          Celular: 6.0,
+          Correo: "sdsd@gnail.vom",
         },
         {
-          name: "Cupcake",
-          cedulaCC: 305,
-          torre: 3.7,
+          Nombre: "Cupcake",
+          cedula: 305,
+          Torre: 3.7,
           apto: 67,
-          celular: 4.3,
-          correo: "sdsd@gnail.vom",
+          Celular: 4.3,
+          Correo: "sdsd@gnail.vom",
         },
         {
-          name: "Gingerbread",
-          cedulaCC: 356,
-          torre: 16.0,
+          Nombre: "Gingerbread",
+          cedula: 356,
+          Torre: 16.0,
           apto: 49,
-          celular: 3.9,
-          correo: "sdsd@gnail.vom",
+          Celular: 3.9,
+          Correo: "sdsd@gnail.vom",
         },
         {
-          name: "Jelly bean",
-          cedulaCC: 375,
-          torre: 0.0,
+          Nombre: "Jelly bean",
+          cedula: 375,
+          Torre: 0.0,
           apto: 94,
-          celular: 0.0,
-          correo: "sdsd@gnail.vom",
+          Celular: 0.0,
+          Correo: "sdsd@gnail.vom",
         },
         {
-          name: "Lollipop",
-          cedulaCC: 392,
-          torre: 0.2,
+          Nombre: "Lollipop",
+          cedula: 392,
+          Torre: 0.2,
           apto: 98,
-          celular: 0,
-          correo: "sdsd@gnail.vom",
+          Celular: 0,
+          Correo: "sdsd@gnail.vom",
         },
         {
-          name: "Honeycomb",
-          cedulaCC: 408,
-          torre: 3.2,
+          Nombre: "Honeycomb",
+          cedula: 408,
+          Torre: 3.2,
           apto: 87,
-          celular: 6.5,
-          correo: "sdsd@gnail.vom",
+          Celular: 6.5,
+          Correo: "sdsd@gnail.vom",
         },
         {
-          name: "Donut",
-          cedulaCC: 452,
-          torre: 25.0,
+          Nombre: "Donut",
+          cedula: 452,
+          Torre: 25.0,
           apto: 51,
-          celular: 4.9,
-          correo: "sdsd@gnail.vom",
+          Celular: 4.9,
+          Correo: "sdsd@gnail.vom",
         },
         {
-          name: "KitKat",
-          cedulaCC: 518,
-          torre: 26.0,
+          Nombre: "KitKat",
+          cedula: 518,
+          Torre: 26.0,
           apto: 65,
-          celular: 7,
-          correo: "sdsd@gnail.vom",
+          Celular: 7,
+          Correo: "sdsd@gnail.vom",
         },
-      ];
+      ]; */
     },
 
     editItem(item) {
-      this.editedIndex = this.desserts.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.dialog = true;
+      this.activarEdicion(item.cedula);
     },
 
     deleteItem(item) {
-      this.editedIndex = this.desserts.indexOf(item);
+      this.editedIndex = this.Propietarios.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
-      
     },
 
     deleteItemConfirm() {
-      this.desserts.splice(this.editedIndex, 1);
+      this.eliminarPropietario(this.editedItem.cedula);
       this.closeDelete();
       this.$refs.form.reset();
     },
 
     close() {
-      this.dialog = false;
-      
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
+        this.editar = false;
         this.$refs.form.reset();
       });
+      this.initialize();
     },
 
     closeDelete() {
@@ -477,20 +485,79 @@ mounted(){
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
       });
+      this.initialize();
     },
 
     save() {
-      if (this.editedIndex > -1) {
-        Object.assign(this.desserts[this.editedIndex], this.editedItem);
+      if (this.editar) {
+        this.editarPropietario(this.editedItem);
       } else {
-        this.desserts.push(this.editedItem);
+        this.AgregarPropietario();
       }
-      
+
       this.close();
+      this.initialize();
     },
 
+    AgregarPropietario() {
+      this.editedItem.contraseña = this.editedItem.cedula;
+      this.editedItem.informacion.condominio = this.usuario.informacion.condominio;
+      this.editedItem.tipoUsuario = 2;
+      this.axios
+        .post("/Usuarios/", this.editedItem)
+        .then((res) => {
+          this.Propietarios.push(res.data);
+        })
+        .catch((e) => {
+          console.log(e.response);
+        });
+    },
 
+    eliminarPropietario(cedula) {
+      this.axios
+        .delete(`/Usuarios/${cedula}`)
+        .then((res) => {
+          const index = this.editedItem.findIndex(
+            (editedItem) => editedItem._id === res.data._id
+          );
+          this.editedItem.splice(index, 1);
+        })
+        .catch((e) => {
+          console.log(e.response);
+        });
+    },
 
+    editarPropietario(editedItem) {
+      this.axios
+        .put(`/Usuarios/${editedItem._id}`, editedItem)
+        .then((res) => {
+          const index = this.Propietarios.findIndex(
+            (n) => n._id === res.data._id
+          );
+          this.Propietarios[index].Cedula = res.data.Cedula;
+          this.Propietarios[index].informacion.Nombre = res.data.Nombre;
+          this.Propietarios[index].informacion.Torre = res.data.Torre;
+          this.Propietarios[index].informacion.Correo = res.data.Correo;
+          this.Propietarios[index].informacion.Apartamento =
+            res.data.Apartamento;
+          this.Propietarios[index].informacion.Celular = res.data.Celular;
+        })
+        .catch((e) => {
+          console.log(e.response);
+        });
+    },
+
+    activarEdicion(cedula) {
+      this.editar = true;
+      this.axios
+        .get(`/Usuarios/${cedula}`)
+        .then((res) => {
+          this.editedItem = res.data;
+        })
+        .catch((e) => {
+          console.log(e.response);
+        });
+    },
   },
 };
 </script>
