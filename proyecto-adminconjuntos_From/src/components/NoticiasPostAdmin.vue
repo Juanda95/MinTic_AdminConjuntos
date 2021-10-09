@@ -20,6 +20,7 @@
                             <v-btn
                             color="Black"
                             icon
+                            @click="editItem()"
                             >
                                 <v-icon>mdi-application-edit</v-icon>
                             </v-btn>

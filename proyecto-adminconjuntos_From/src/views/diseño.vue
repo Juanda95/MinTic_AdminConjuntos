@@ -29,8 +29,11 @@
               style="border-radius: 100px; width: 65px; height: 65px"
             />
           </v-avatar>
-          <h3 class="white--text mt-2 ml-5" Roboto>
-            {{ usuario.tipoUsuario }}
+          <h3 v-if="usuario.tipoUsuario==2" class="white--text mt-2 ml-5" Roboto>
+            Residente
+          </h3>
+          <h3 v-else-if="usuario.tipoUsuario==1" class="white--text mt-2 ml-5" Roboto>
+            Administrador
           </h3>
         </v-flex>
         <v-flex class="row ml-4 mt-4">
@@ -41,7 +44,7 @@
           <div class=" white--text">Apellido:</div>
           <div class="ml-2 white--text">{{ usuario.Apellido }}</div>
         </v-flex>
-        <div v-if="usuario.admin"></div>
+        <div v-if="usuario.tipoUsuario==1"></div>
         <div v-else>
           <v-flex class="row ml-4  mt-2">
             <div class=" white--text">Torre:</div>
@@ -54,7 +57,7 @@
         </div>
         <hr color="gray" class="mt-4 ml-2 mr-2 mb-0" />
         <v-flex class="ml-0 mb-0">
-          <div v-if="usuario.admin">
+          <div v-if="usuario.tipoUsuario==1">
             <v-list class="" dense>
               <v-list-item
                 v-for="item in itemsAdmin"
@@ -94,15 +97,15 @@
                       </v-card-title>
                       <v-form ref="form" v-model="form" class="pa-4 pt-6">
                         <v-text-field
-                          v-model="email"
+                          v-model="editedItem.titulo"
                           :rules="[rules.required]"
                           color="deep-purple"
-                          label="Email address"
+                          label="Titulo"
                         ></v-text-field>
                         <v-textarea
                           class="mr-5 ml-5"
-                          v-model="cuerpo"
-                          label="Noticia"
+                          v-model="editedItem.cuerpo"
+                          label="Cuerpo de la Noticia"
                           counter
                           maxlength="200"
                           :rules="[rules.required]"
@@ -111,7 +114,7 @@
                       </v-form>
                       <v-divider></v-divider>
                       <v-card-actions>
-                        <v-btn text @click="$refs.form.reset()">
+                        <v-btn text @click="close()">
                           cancelar
                         </v-btn>
                         <v-spacer></v-spacer>
@@ -119,6 +122,7 @@
                           :disabled="!form"
                           class="white--text"
                           color="deep-purple accent-4"
+                          @click="save()"
                         >
                           publicar
                         </v-btn>
@@ -166,41 +170,84 @@
         </v-row>
       </v-layout>
     </v-navigation-drawer>
-    <div>
-      <noticias-post />
+    <div v-if="usuario.tipoUsuario == 2">
+      <v-card
+        v-for="noticia in Noticias"
+        :key="noticia.id"
+        color="#EDE7D9"
+        class="mx-auto mt-6"
+        max-width="350"
+        outlined
+      >
+        <v-list-item three-line>
+          <v-list-item-content>
+            <v-list-item-title class="text-h5 mt-3">
+              {{ noticia.titulo }}
+            </v-list-item-title>
+            <v-list-item-subtitle>{{ noticia.fecha }}</v-list-item-subtitle>
+            <div class="e mb-3 mt-4">
+              <p>
+                {{ noticia.cuerpo }}
+              </p>
+            </div>
+          </v-list-item-content>
+        </v-list-item>
+      </v-card>
     </div>
-    <div>
-      <noticias-post />
-    </div>
-    <div>
-      <noticias-post />
-    </div>
-    <div>
-      <noticias-post />
-    </div>
-    <div>
-      <noticias-post />
-    </div>
-    <div>
-      <noticias-post />
-    </div>
-    <div>
-      <noticias-post />
-    </div>
-    <div>
-      <noticias-post />
-    </div>
-    <div>
-      <noticias-post />
-    </div>
-    <div>
-      <noticias-post />
-    </div>
-    <div>
-      <noticias-post />
-    </div>
-    <div>
-      <noticias-post />
+    <div v-else-if="usuario.tipoUsuario == 1">
+      <v-card
+        color="#EDE7D9"
+        class="mx-auto mt-6"
+        max-width="350"
+        outlined
+        v-for="noticia in Noticias"
+        :key="noticia.id"
+      >
+        <v-list-item three-line>
+          <v-list-item-content>
+            <v-flex class="row  mt-3 align-center">
+              <div>
+                <v-list-item-title class="text-h5 ml-3">
+                  {{ noticia.titulo }}
+                </v-list-item-title>
+              </div>
+              <v-spacer></v-spacer>
+              <v-dialog v-model="dialogDelete" max-width="500px">
+            <v-card>
+              <v-card-title class="ml-2 text-h5">
+                ¿Seguro que desea eliminar la Noticia?</v-card-title
+              >
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="closeDelete"
+                  >Cancelar</v-btn
+                >
+                <v-btn color="blue darken-1" text @click="deleteItemConfirm(noticia)"
+                  >OK</v-btn
+                >
+                <v-spacer></v-spacer>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+              <div>
+                <v-btn color="Black" icon @click="editItem(noticia)">
+                  <v-icon>mdi-application-edit</v-icon>
+                </v-btn>
+                <v-btn color="Black" icon @click="deleteItem()">
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </div>
+            </v-flex>
+
+            <v-list-item-subtitle>{{ noticia.fecha }}</v-list-item-subtitle>
+            <div class=" mb-3 mt-4">
+              <p>
+                {{ noticia.cuerpo }}
+              </p>
+            </div>
+          </v-list-item-content>
+        </v-list-item>
+      </v-card>
     </div>
   </div>
 </template>
@@ -227,13 +274,14 @@
 </style>
 
 <script>
-import NoticiasPost from "../components/NoticiasPostAdmin.vue";
+//import NoticiasPost from "../components/NoticiasPostAdmin.vue";
 
 export default {
-  components: { NoticiasPost },
+  //components: { NoticiasPost },
   name: "App",
   data() {
     return {
+      dialogDelete: false,
       titulo: undefined,
       email: undefined,
       cuerpo: undefined,
@@ -241,6 +289,16 @@ export default {
       isLoading: false,
       dialog: false,
       drawer: true,
+      Noticias: [],
+      editedIndex: -1,
+      editedItem: {
+        titulo: "",
+        cuerpo: "",
+      },
+      defaultItem: {
+        titulo: "",
+        cuerpo: "",
+      },
       itemsResidente: [{ title: "Noticias", icon: "mdi-newspaper-variant" }],
       itemsAdmin: [
         { title: "Noticias", url: "Home", icon: "mdi-newspaper-variant" },
@@ -258,7 +316,7 @@ export default {
       usuario: {
         Nombre: "Juan",
         Apellido: "Elkin",
-        tipoUsuario: "Administrador",
+        tipoUsuario: "1",
         admin: true,
         Torre: "A",
         Apartamento: 202,
@@ -267,6 +325,123 @@ export default {
         required: (v) => !!v || "This field is required",
       },
     };
+  },
+    watch: {
+    dialog(val) {
+      val || this.close();
+    },
+    dialogDelete(val) {
+      val || this.closeDelete();
+    },
+  },
+  mounted() {
+    this.initialize();
+  },
+
+  methods: {
+    initialize() {
+      this.axios
+        .get("/Noticias/all")
+        .then((res) => {
+          console.log(res.data);
+
+          this.Noticias = res.data;
+          console.log(this.Noticias);
+        })
+        .catch((e) => {
+          console.log(e.response);
+        });
+    },
+
+    editItem(item) {
+      this.editedIndex = this.Noticias.indexOf(item);
+      this.editedItem = Object.assign({}, item);
+      
+      this.dialog = true;
+    },
+
+    deleteItem() {
+      
+      this.dialogDelete = true;
+      
+    },
+
+    deleteItemConfirm(item) {
+      console.log(item._id)
+      this.eliminarNoticia(item._id);
+
+      this.closeDelete();
+    },
+
+    close() {
+      this.dialog = false;
+      setTimeout(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+        this.initialize();
+      }, 300);
+    },
+
+    closeDelete() {
+      this.dialogDelete = false;
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
+      this.initialize();
+    },
+
+    save() {
+      if (this.editedIndex > -1) {
+        Object.assign(this.Noticias[this.editedIndex], this.editedItem);
+        this.editarNoticia(this.editedItem);
+      } else {
+        this.Noticias.push(this.editedItem);
+        this.agregarNoticia();
+      }
+      
+      this.close();
+    },
+    agregarNoticia() {
+      this.axios
+        .post("/Noticias/", this.editedItem)
+        .then((res) => {
+          this.datosPagos.push(res.data);
+          this.editedItem.titulo = "";
+          this.editedItem.cuerpo = "";
+        })
+        .catch((e) => {
+          console.log(e.response);
+        });
+    },
+    eliminarNoticia(id) {
+      this.axios
+        .delete(`/Noticias/${id}`)
+        .then((res) => {
+          const index = this.editedItem.findIndex(
+            (editedItem) => editedItem._id === res.data._id
+          );
+          this.editedItem.splice(index, 1);
+        })
+        .catch((e) => {
+          console.log(e.response);
+        });
+    },
+    editarNoticia(editedItem) {
+      this.axios
+        .put(`/Noticias/${editedItem._id}`, editedItem)
+        .then((res) => {
+          const index = this.Noticias.findIndex(
+            (n) => n._id === res.data._id
+          );
+          this.Noticias[index].titulo = res.data.titulo;
+          this.Noticias[index].cuerpo = res.data.cuerpo;
+          
+        })
+        .catch((e) => {
+          console.log(e.response);
+        });
+    },
   },
 };
 </script>
