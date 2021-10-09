@@ -15,6 +15,7 @@ module.exports = class AuthModel {
             succes: false,
             msg: `autentificacion fallida. El Usuario ${request.body.cedula} no existe`,
           });
+          
       } else {
         Usuario.comparePassword(request.body.password, function (err, isMatch) {
           if (isMatch && !err) {
