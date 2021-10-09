@@ -1,1 +1,0 @@
-# MinTic_AdminConjuntos
