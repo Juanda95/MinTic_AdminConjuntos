@@ -410,8 +410,9 @@ export default {
       val || this.closeDelete();
     },
   },
-  mounted() {
-    this.initialize();
+  
+  created () {
+    this.initialize()
   },
   methods: {
     initialize() {

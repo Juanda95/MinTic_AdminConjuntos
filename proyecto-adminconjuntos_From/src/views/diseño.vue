@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div >
     <v-app-bar app color="#EDE7D9" dark height="145vh">
       <v-app-bar-nav-icon
         color="#32A287"
@@ -163,14 +163,71 @@
             elevation="2"
             rounded
             color="#EDE7D9"
-            :to="'/'"
+            @click="logout"
           >
             Cerrar sesión
           </v-btn>
         </v-row>
       </v-layout>
     </v-navigation-drawer>
-    <div v-if="usuario.tipoUsuario == 2">
+    <div >
+    <v-dialog v-model="dialogDelete" max-width="500px">
+            <v-card>
+              <v-card-title class="ml-2 text-h5">
+                ¿Seguro que desea eliminar la Noticia?</v-card-title
+              >
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="closeDelete"
+                  >Cancelar</v-btn
+                >
+                <v-btn color="blue darken-1" text @click="deleteItemConfirm"
+                  >OK</v-btn
+                >
+                <v-spacer></v-spacer>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+    <div v-if="usuario.tipoUsuario == 1">
+      <v-card
+        color="#EDE7D9"
+        class="mx-auto mt-6"
+        max-width="350"
+        outlined
+        v-for="noticia in Noticias"
+        :key="noticia.id"
+      >
+        <v-list-item three-line>
+          <v-list-item-content>
+            <v-flex class="row  mt-3 align-center">
+              <div>
+                <v-list-item-title class="text-h5 ml-3">
+                  {{ noticia.titulo }}
+                </v-list-item-title>
+              </div>
+              <v-spacer></v-spacer>
+              
+              <div>
+                <v-btn color="Black" icon @click="editItem(noticia)">
+                  <v-icon>mdi-application-edit</v-icon>
+                </v-btn>
+                <v-btn color="Black" icon @click="deleteItem(noticia)">
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </div>
+            </v-flex>
+
+            <v-list-item-subtitle>{{ noticia.fecha }}</v-list-item-subtitle>
+            <div class=" mb-3 mt-4">
+              <p>
+                {{ noticia.cuerpo }}
+              </p>
+            </div>
+          </v-list-item-content>
+        </v-list-item>
+      </v-card>
+    </div>
+    <div v-else-if="usuario.tipoUsuario == 2">
       <v-card
         v-for="noticia in Noticias"
         :key="noticia.id"
@@ -194,66 +251,16 @@
         </v-list-item>
       </v-card>
     </div>
-    <div v-else-if="usuario.tipoUsuario == 1">
-      <v-card
-        color="#EDE7D9"
-        class="mx-auto mt-6"
-        max-width="350"
-        outlined
-        v-for="noticia in Noticias"
-        :key="noticia.id"
-      >
-        <v-list-item three-line>
-          <v-list-item-content>
-            <v-flex class="row  mt-3 align-center">
-              <div>
-                <v-list-item-title class="text-h5 ml-3">
-                  {{ noticia.titulo }}
-                </v-list-item-title>
-              </div>
-              <v-spacer></v-spacer>
-              <v-dialog v-model="dialogDelete" max-width="500px">
-            <v-card>
-              <v-card-title class="ml-2 text-h5">
-                ¿Seguro que desea eliminar la Noticia?</v-card-title
-              >
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="closeDelete"
-                  >Cancelar</v-btn
-                >
-                <v-btn color="blue darken-1" text @click="deleteItemConfirm(noticia)"
-                  >OK</v-btn
-                >
-                <v-spacer></v-spacer>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-              <div>
-                <v-btn color="Black" icon @click="editItem(noticia)">
-                  <v-icon>mdi-application-edit</v-icon>
-                </v-btn>
-                <v-btn color="Black" icon @click="deleteItem()">
-                  <v-icon>mdi-delete</v-icon>
-                </v-btn>
-              </div>
-            </v-flex>
-
-            <v-list-item-subtitle>{{ noticia.fecha }}</v-list-item-subtitle>
-            <div class=" mb-3 mt-4">
-              <p>
-                {{ noticia.cuerpo }}
-              </p>
-            </div>
-          </v-list-item-content>
-        </v-list-item>
-      </v-card>
     </div>
   </div>
 </template>
 
 <style>
 .v-main {
+  background: #A49694;
+  background-size: auto;
+}
+.pintar {
   background-color: #a49694;
 }
 .boton {
@@ -275,7 +282,7 @@
 
 <script>
 //import NoticiasPost from "../components/NoticiasPostAdmin.vue";
-
+import axios from 'axios';
 export default {
   //components: { NoticiasPost },
   name: "App",
@@ -334,9 +341,28 @@ export default {
       val || this.closeDelete();
     },
   },
-  mounted() {
-    this.initialize();
+  created() {
+    this.axios.defaults.headers.common['Authorization']= localStorage.getItem(
+      'jwtToken'
+    )
+    axios
+        .get("/Noticias/all")
+        .then((res) => {
+          console.log(res.data);
+
+          this.Noticias = res.data;
+          console.log(this.Noticias);
+        })
+        .catch((e) => {
+          console.log(e.response);
+          if(e.response.status===401){
+            this.$router.push({
+              name:'Inicio sesion'
+            })
+          }
+        });    
   },
+
 
   methods: {
     initialize() {
@@ -360,15 +386,16 @@ export default {
       this.dialog = true;
     },
 
-    deleteItem() {
-      
+    deleteItem(item) {
+      this.editedIndex = this.Noticias.indexOf(item);
+      this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
       
     },
 
-    deleteItemConfirm(item) {
-      console.log(item._id)
-      this.eliminarNoticia(item._id);
+    deleteItemConfirm() {
+      console.log(this.editedItem._id);
+      this.eliminarNoticia(this.editedItem._id);
 
       this.closeDelete();
     },
@@ -442,6 +469,13 @@ export default {
           console.log(e.response);
         });
     },
+    logout(){
+      localStorage.removeItem('jwtToken')
+      this.$router.push({
+        name:'Inicio sesion'
+      })
+
+    }
   },
 };
 </script>
