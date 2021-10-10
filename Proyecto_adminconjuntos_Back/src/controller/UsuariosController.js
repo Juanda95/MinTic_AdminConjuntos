@@ -33,13 +33,22 @@ module.exports = class UsuariosModel {
     }
   }
 
-  static async create(request, response){
+  static async create(request, response) {
     try {
-      const document = request.body;
-      const newRestaurant = await Usuario.create(document);
-      response.status(201).json(newRestaurant);
+      if (!request.body.cedula || !request.body.password) {
+        response.json({
+          success: false,
+          msg: "El usuario y la contraseña son obligatorios!",
+        });
+      } else {
+        const newUsuario = new Usuario (request.body)
+        newUsuario.save(function(err){
+          if(err) return response.json({success: false,msg:'la cedula del usuario ya existe!'})
+          return response.json({success: true,msg:'usuario registrado!'})
+        })
+      }
     } catch (err) {
-      response.status(400).json({message: err.message})
+      response.status(400).json({ message: err.message });
     }
   }
 

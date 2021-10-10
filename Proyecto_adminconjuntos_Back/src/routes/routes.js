@@ -1,9 +1,13 @@
 const express = require("express");
 const NoticiasController = require("../controller/NoticiasController");
 const UsuariosController = require("../controller/UsuariosController");
+const AuthController = require("../controller/authController");
 const ContaduriaController = require("../controller/ContaduriaController");
 
 const router = express.Router();
+
+//auth
+router.post("/login", AuthController.login);
 
 // Rutes Noticias
 router.get("/Noticias/all", NoticiasController.getAll);
