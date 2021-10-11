@@ -3,25 +3,25 @@
     <!-- Seccion de titulo -->
     <h1
       class="text-center white--text mt-3 font-weight-bold"
-      style="font-size:52px;"
+      style="font-size:51px;"
     >
       Administracion de
     </h1>
     <h1
       class="text-center white--text mt-3 font-weight-bold"
-      style="font-size:52px;"
+      style="font-size:51px;"
     >
       Condominios
     </h1>
     <br />
 
-    <v-card class="mx-auto" light max-width="750" rounded="xl">
+    <v-card class="mx-auto" light max-width="120vh" rounded="xl">
       <v-row class="mx-0" style="overflow:hidden;">
         <!-- Add `overflow: hidden;` here! -->
         <v-img
           src="..\assets\imagen_inicio_sesion.png"
-          max-height="400"
-          max-width="375"
+          max-height="370"
+          max-width="60vh"
           fixed
         ></v-img>
         <div class="mx-auto my-auto">

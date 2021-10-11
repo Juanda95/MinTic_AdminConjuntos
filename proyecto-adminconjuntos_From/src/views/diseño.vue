@@ -12,7 +12,7 @@
         <v-flex class="align-left">
           <v-list-item align-left>
             <v-list-item-content>
-              <p class="white--text text-h5 mt-5">Nombre del Condominio</p>
+              <p class="white--text text-h5 mt-5">{{usuario.informacion.condominio}}</p>
               <p class="white--text mb-0">
                 Proyecto administrador del Condominio
               </p>
@@ -38,21 +38,22 @@
         </v-flex>
         <v-flex class="row ml-4 mt-4">
           <div class="white--text">Nombre:</div>
-          <div class="ml-2 white--text">{{ usuario.Nombre }}</div>
+          <div class="ml-2 white--text">{{ usuario.informacion.Nombre }}</div>
         </v-flex>
         <v-flex class="row ml-4 mt-2">
-          <div class=" white--text">Apellido:</div>
-          <div class="ml-2 white--text">{{ usuario.Apellido }}</div>
+          <div class="white--text">Cedula:</div>
+          <div class="ml-2 white--text">{{ usuario.cedula}}</div>
         </v-flex>
         <div v-if="usuario.tipoUsuario==1"></div>
+        
         <div v-else>
           <v-flex class="row ml-4  mt-2">
             <div class=" white--text">Torre:</div>
-            <div class="ml-2 white--text">{{ usuario.Torre }}</div>
+            <div class="ml-2 white--text">{{ usuario.informacion.Torre }}</div>
           </v-flex>
           <v-flex class="row ml-4 mt-2">
             <div class=" white--text">Apartamento:</div>
-            <div class="ml-2 white--text">{{ usuario.Apartamento }}</div>
+            <div class="ml-2 white--text">{{ usuario.informacion.Apartamento }}</div>
           </v-flex>
         </div>
         <hr color="gray" class="mt-4 ml-2 mr-2 mb-0" />
@@ -199,27 +200,32 @@
       >
         <v-list-item three-line>
           <v-list-item-content>
-            <v-flex class="row  mt-3 align-center">
-              <div>
-                <v-list-item-title class="text-h5 ml-3">
-                  {{ noticia.titulo }}
-                </v-list-item-title>
-              </div>
+            <v-row class=" mt-3 align-center">
+              <p class="ml-3 text-subtitle-1 my-auto" name="">
+                
+                {{ new Date(noticia.fecha) | dateFormat('DD/MM/YYYY') }}
+              </p>
+              <p class="ml-3 text-subtitle-1 my-auto" name="">
+                
+                {{ new Date(noticia.fecha) | dateFormat('h:m a') }}
+              </p>
               <v-spacer></v-spacer>
-              
-              <div>
                 <v-btn color="Black" icon @click="editItem(noticia)">
                   <v-icon>mdi-application-edit</v-icon>
                 </v-btn>
-                <v-btn color="Black" icon @click="deleteItem(noticia)">
+                <v-btn class="mr-3" color="Black" icon @click="deleteItem(noticia)">
                   <v-icon>mdi-delete</v-icon>
                 </v-btn>
-              </div>
-            </v-flex>
+              
+            </v-row>
 
-            <v-list-item-subtitle>{{ noticia.fecha }}</v-list-item-subtitle>
+            <div>
+                <p class="text-h6 mt-3 text-center mx-auto">
+                  {{ noticia.titulo }}
+                </p>
+              </div>
             <div class=" mb-3 mt-4">
-              <p>
+              <p class="text-justify">
                 {{ noticia.cuerpo }}
               </p>
             </div>
@@ -238,12 +244,23 @@
       >
         <v-list-item three-line>
           <v-list-item-content>
-            <v-list-item-title class="text-h5 mt-3">
-              {{ noticia.titulo }}
-            </v-list-item-title>
-            <v-list-item-subtitle>{{ noticia.fecha }}</v-list-item-subtitle>
-            <div class="e mb-3 mt-4">
-              <p>
+            <v-row class=" mt-3 align-center">
+              <p class="ml-3 text-subtitle-1 my-auto" name="">
+                
+                {{ new Date(noticia.fecha) | dateFormat('DD/MM/YYYY') }}
+              </p>
+              <p class="ml-3 text-subtitle-1 my-auto" name="">
+                
+                {{ new Date(noticia.fecha) | dateFormat('h:m a') }}
+              </p>
+            </v-row>
+            <div>
+                <p class="text-h6 mt-3 text-center mx-auto">
+                  {{ noticia.titulo }}
+                </p>
+              </div>
+            <div class=" mb-3 mt-4">
+              <p class="text-justify">
                 {{ noticia.cuerpo }}
               </p>
             </div>
@@ -283,6 +300,11 @@
 <script>
 //import NoticiasPost from "../components/NoticiasPostAdmin.vue";
 import axios from 'axios';
+import jwt_decode from 'jwt-decode'
+import Vue from 'vue';
+import VueFilterDateFormat from '@vuejs-community/vue-filter-date-format';
+
+Vue.use(VueFilterDateFormat);
 export default {
   //components: { NoticiasPost },
   name: "App",
@@ -321,12 +343,9 @@ export default {
         },
       ],
       usuario: {
-        Nombre: "Juan",
-        Apellido: "Elkin",
-        tipoUsuario: "1",
-        admin: true,
-        Torre: "A",
-        Apartamento: 202,
+        informacion:{
+          condominio:""
+        }
       },
       rules: {
         required: (v) => !!v || "This field is required",
@@ -341,8 +360,8 @@ export default {
       val || this.closeDelete();
     },
   },
-  created() {
-    this.axios.defaults.headers.common['Authorization']= localStorage.getItem(
+  beforeCreate() {
+    axios.defaults.headers.common['Authorization']= localStorage.getItem(
       'jwtToken'
     )
     axios
@@ -351,11 +370,17 @@ export default {
           console.log(res.data);
 
           this.Noticias = res.data;
+          
+          const token= localStorage.getItem('jwtToken').split(' ')[1];
+          var token_decode=jwt_decode(token);
+          //this.usuario.push(token_decode)
+          this.usuario=token_decode;
+          //console.log(token_decode);
           console.log(this.Noticias);
         })
         .catch((e) => {
           console.log(e.response);
-          if(e.response.status===401){
+          if(e.response.status===403||e.response.status===401){
             this.$router.push({
               name:'Inicio sesion'
             })
@@ -405,6 +430,7 @@ export default {
       setTimeout(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
+        
         this.initialize();
       }, 300);
     },
@@ -414,6 +440,7 @@ export default {
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
+        this.$refs.form.resetValidation()
       });
       this.initialize();
     },
@@ -428,6 +455,7 @@ export default {
       }
       
       this.close();
+      
     },
     agregarNoticia() {
       this.axios

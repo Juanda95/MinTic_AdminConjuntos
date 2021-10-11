@@ -32,7 +32,7 @@
         <v-flex class="align-left">
           <v-list-item align-left>
             <v-list-item-content>
-              <p class="white--text text-h5 mt-5">Nombre del Condominio</p>
+              <p class="white--text text-h5 mt-5 ">{{usuario.informacion.condominio}}</p>
               <p class="white--text mb-0">
                 Proyecto administrador del Condominio
               </p>
@@ -41,7 +41,7 @@
         </v-flex>
         <hr color="gray" class="ml-2 mr-2" />
         <v-flex class="ml-0 mb-0">
-          <div v-if="usuario.admin">
+          <div v-if="usuario.tipoUsuario===1">
             <v-list class="" dense>
               <v-list-item
                 v-for="itemAdmin in itemsAdmin"
@@ -200,7 +200,10 @@
 </template>
 
 <style>
-
+.v-main {
+  background: #A49694;
+  background-size: auto;
+}
 .boton {
   position: absolute;
   bottom: 5%;
@@ -223,6 +226,8 @@
 </style>
 
 <script>
+import axios from 'axios'
+import jwt_decode from 'jwt-decode'
 export default {
   name: "Contaduria",
   data() {
@@ -248,17 +253,9 @@ export default {
         },
       ],
       usuario: {
-        cedula: 648648444,
-        tipoUsuario: 1,
-        admin: true,
-        informacion: {
-          Nombre: "Juan David Muñoz Velandia",
-          Correo: "Arq.juandavidmunoz@gmail.com",
-          Torre: "4",
-          Apartamento: "407",
-          Celular: "3116706261",
-          condominio: "agua bonita",
-        },
+        informacion:{
+          condominio:""
+        }
       },
       valid: true,
       nameRules: [
@@ -346,8 +343,36 @@ export default {
     },
   },
 
-  created() {
-    this.initialize();
+  beforeCreate() {
+    axios.defaults.headers.common['Authorization']= localStorage.getItem(
+      'jwtToken'
+    )
+    this.axios
+        .get("/Usuarios/all")
+        .then((res) => {
+          console.log(res.data);
+
+          this.Propietarios = res.data;
+          const token= localStorage.getItem('jwtToken').split(' ')[1];
+          var token_decode=jwt_decode(token);
+          //this.usuario.push(token_decode)
+          this.usuario=token_decode;
+          if(this.usuario.tipoUsuario===2){
+            this.$router.push({
+              name:'Home'
+            })
+          }
+        })
+        .catch((e) => {
+          console.log(e.response);
+          if(e.response.status===403||e.response.status===401){
+            this.$router.push({
+              name:'Inicio sesion'
+            })
+          }
+        });
+    
+  
   },
 
   methods: {
