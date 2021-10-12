@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const NoticiaSchema = mongoose.Schema({
   idNoticia: String,
-  Titulo: String,
+  titulo: String,
   cuerpo: String,
   fecha: {type:Date, default: Date.now}
 });

@@ -1,6 +1,49 @@
 const Usuario = require("../model/UsuariosModel")
 
+const getToken= function(headers){
+  if(headers && headers.authorization){
+    const parted=headers.authorization.split(' ')
+    if(parted.length===2){
+      return parted[1]
+    }else{
+      return null
+    }
+  }else{
+    return null
+  }
+}
 module.exports = class UsuariosModel {
+  getToken= function(headers){
+    if(headers && headers.authorization){
+      const parted=headers.authorization.split(' ')
+      if(parted.length===2){
+        return parted[1]
+      }else{
+        return null
+      }
+    }else{
+      return null
+    }
+  }
+  
+  static async getAll(request, response) {
+    try {
+      const token= getToken(request.headers)
+      if(token){
+        const result = await Usuario.find();
+        response.status(200).json(result);
+
+      }else{
+        return response.status(403).send({success: false, msg:'No esta autorizado!'})
+      }
+      
+    } catch (err) {
+      response.status(404).json({message: err.message});
+    }
+  }
+  
+  
+  /*
   static async getAll(request, response) {
     try {
       const result = await Usuario.find();
@@ -8,7 +51,7 @@ module.exports = class UsuariosModel {
     } catch (err) {
       response.status(404).json({message: err.message});
     }
-  }
+  }*/
   static async getById(request, response) {
     try {
       const id = request.params.id;

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div >
     <v-app-bar app color="#EDE7D9" dark height="145vh">
       <v-app-bar-nav-icon
         color="#32A287"
@@ -12,7 +12,7 @@
         <v-flex class="align-left">
           <v-list-item align-left>
             <v-list-item-content>
-              <p class="white--text text-h5 mt-5">Nombre del Condominio</p>
+              <p class="white--text text-h5 mt-5">{{usuario.informacion.condominio}}</p>
               <p class="white--text mb-0">
                 Proyecto administrador del Condominio
               </p>
@@ -38,21 +38,22 @@
         </v-flex>
         <v-flex class="row ml-4 mt-4">
           <div class="white--text">Nombre:</div>
-          <div class="ml-2 white--text">{{ usuario.Nombre }}</div>
+          <div class="ml-2 white--text">{{ usuario.informacion.Nombre }}</div>
         </v-flex>
         <v-flex class="row ml-4 mt-2">
-          <div class=" white--text">Apellido:</div>
-          <div class="ml-2 white--text">{{ usuario.Apellido }}</div>
+          <div class="white--text">Cedula:</div>
+          <div class="ml-2 white--text">{{ usuario.cedula}}</div>
         </v-flex>
         <div v-if="usuario.tipoUsuario==1"></div>
+        
         <div v-else>
           <v-flex class="row ml-4  mt-2">
             <div class=" white--text">Torre:</div>
-            <div class="ml-2 white--text">{{ usuario.Torre }}</div>
+            <div class="ml-2 white--text">{{ usuario.informacion.Torre }}</div>
           </v-flex>
           <v-flex class="row ml-4 mt-2">
             <div class=" white--text">Apartamento:</div>
-            <div class="ml-2 white--text">{{ usuario.Apartamento }}</div>
+            <div class="ml-2 white--text">{{ usuario.informacion.Apartamento }}</div>
           </v-flex>
         </div>
         <hr color="gray" class="mt-4 ml-2 mr-2 mb-0" />
@@ -163,56 +164,15 @@
             elevation="2"
             rounded
             color="#EDE7D9"
-            :to="'/'"
+            @click="logout"
           >
             Cerrar sesión
           </v-btn>
         </v-row>
       </v-layout>
     </v-navigation-drawer>
-    <div v-if="usuario.tipoUsuario == 2">
-      <v-card
-        v-for="noticia in Noticias"
-        :key="noticia.id"
-        color="#EDE7D9"
-        class="mx-auto mt-6"
-        max-width="350"
-        outlined
-      >
-        <v-list-item three-line>
-          <v-list-item-content>
-            <v-list-item-title class="text-h5 mt-3">
-              {{ noticia.titulo }}
-            </v-list-item-title>
-            <v-list-item-subtitle>{{ noticia.fecha }}</v-list-item-subtitle>
-            <div class="e mb-3 mt-4">
-              <p>
-                {{ noticia.cuerpo }}
-              </p>
-            </div>
-          </v-list-item-content>
-        </v-list-item>
-      </v-card>
-    </div>
-    <div v-else-if="usuario.tipoUsuario == 1">
-      <v-card
-        color="#EDE7D9"
-        class="mx-auto mt-6"
-        max-width="350"
-        outlined
-        v-for="noticia in Noticias"
-        :key="noticia.id"
-      >
-        <v-list-item three-line>
-          <v-list-item-content>
-            <v-flex class="row  mt-3 align-center">
-              <div>
-                <v-list-item-title class="text-h5 ml-3">
-                  {{ noticia.titulo }}
-                </v-list-item-title>
-              </div>
-              <v-spacer></v-spacer>
-              <v-dialog v-model="dialogDelete" max-width="500px">
+    <div >
+    <v-dialog v-model="dialogDelete" max-width="500px">
             <v-card>
               <v-card-title class="ml-2 text-h5">
                 ¿Seguro que desea eliminar la Noticia?</v-card-title
@@ -222,26 +182,50 @@
                 <v-btn color="blue darken-1" text @click="closeDelete"
                   >Cancelar</v-btn
                 >
-                <v-btn color="blue darken-1" text @click="deleteItemConfirm(noticia)"
+                <v-btn color="blue darken-1" text @click="deleteItemConfirm"
                   >OK</v-btn
                 >
                 <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
           </v-dialog>
-              <div>
+    <div v-if="usuario.tipoUsuario == 1">
+      <v-card
+        color="#EDE7D9"
+        class="mx-auto mt-6"
+        max-width="350"
+        outlined
+        v-for="noticia in Noticias"
+        :key="noticia.id"
+      >
+        <v-list-item three-line>
+          <v-list-item-content>
+            <v-row class=" mt-3 align-center">
+              <p class="ml-3 text-subtitle-1 my-auto" name="">
+                
+                {{ new Date(noticia.fecha) | dateFormat('DD/MM/YYYY') }}
+              </p>
+              <p class="ml-3 text-subtitle-1 my-auto" name="">
+                
+                {{ new Date(noticia.fecha) | dateFormat('h:m a') }}
+              </p>
+              <v-spacer></v-spacer>
                 <v-btn color="Black" icon @click="editItem(noticia)">
                   <v-icon>mdi-application-edit</v-icon>
                 </v-btn>
-                <v-btn color="Black" icon @click="deleteItem()">
+                <v-btn class="mr-3" color="Black" icon @click="deleteItem(noticia)">
                   <v-icon>mdi-delete</v-icon>
                 </v-btn>
-              </div>
-            </v-flex>
+              
+            </v-row>
 
-            <v-list-item-subtitle>{{ noticia.fecha }}</v-list-item-subtitle>
+            <div>
+                <p class="text-h6 mt-3 text-center mx-auto">
+                  {{ noticia.titulo }}
+                </p>
+              </div>
             <div class=" mb-3 mt-4">
-              <p>
+              <p class="text-justify">
                 {{ noticia.cuerpo }}
               </p>
             </div>
@@ -249,11 +233,51 @@
         </v-list-item>
       </v-card>
     </div>
+    <div v-else-if="usuario.tipoUsuario == 2">
+      <v-card
+        v-for="noticia in Noticias"
+        :key="noticia.id"
+        color="#EDE7D9"
+        class="mx-auto mt-6"
+        max-width="350"
+        outlined
+      >
+        <v-list-item three-line>
+          <v-list-item-content>
+            <v-row class=" mt-3 align-center">
+              <p class="ml-3 text-subtitle-1 my-auto" name="">
+                
+                {{ new Date(noticia.fecha) | dateFormat('DD/MM/YYYY') }}
+              </p>
+              <p class="ml-3 text-subtitle-1 my-auto" name="">
+                
+                {{ new Date(noticia.fecha) | dateFormat('h:m a') }}
+              </p>
+            </v-row>
+            <div>
+                <p class="text-h6 mt-3 text-center mx-auto">
+                  {{ noticia.titulo }}
+                </p>
+              </div>
+            <div class=" mb-3 mt-4">
+              <p class="text-justify">
+                {{ noticia.cuerpo }}
+              </p>
+            </div>
+          </v-list-item-content>
+        </v-list-item>
+      </v-card>
+    </div>
+    </div>
   </div>
 </template>
 
 <style>
 .v-main {
+  background: #A49694;
+  background-size: auto;
+}
+.pintar {
   background-color: #a49694;
 }
 .boton {
@@ -275,7 +299,12 @@
 
 <script>
 //import NoticiasPost from "../components/NoticiasPostAdmin.vue";
+import axios from 'axios';
+import jwt_decode from 'jwt-decode'
+import Vue from 'vue';
+import VueFilterDateFormat from '@vuejs-community/vue-filter-date-format';
 
+Vue.use(VueFilterDateFormat);
 export default {
   //components: { NoticiasPost },
   name: "App",
@@ -314,12 +343,9 @@ export default {
         },
       ],
       usuario: {
-        Nombre: "Juan",
-        Apellido: "Elkin",
-        tipoUsuario: "1",
-        admin: true,
-        Torre: "A",
-        Apartamento: 202,
+        informacion:{
+          condominio:""
+        }
       },
       rules: {
         required: (v) => !!v || "This field is required",
@@ -334,9 +360,34 @@ export default {
       val || this.closeDelete();
     },
   },
-  mounted() {
-    this.initialize();
+  beforeCreate() {
+    axios.defaults.headers.common['Authorization']= localStorage.getItem(
+      'jwtToken'
+    )
+    axios
+        .get("/Noticias/all")
+        .then((res) => {
+          console.log(res.data);
+
+          this.Noticias = res.data;
+          
+          const token= localStorage.getItem('jwtToken').split(' ')[1];
+          var token_decode=jwt_decode(token);
+          //this.usuario.push(token_decode)
+          this.usuario=token_decode;
+          //console.log(token_decode);
+          console.log(this.Noticias);
+        })
+        .catch((e) => {
+          console.log(e.response);
+          if(e.response.status===403||e.response.status===401){
+            this.$router.push({
+              name:'Inicio sesion'
+            })
+          }
+        });    
   },
+
 
   methods: {
     initialize() {
@@ -360,15 +411,16 @@ export default {
       this.dialog = true;
     },
 
-    deleteItem() {
-      
+    deleteItem(item) {
+      this.editedIndex = this.Noticias.indexOf(item);
+      this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
       
     },
 
-    deleteItemConfirm(item) {
-      console.log(item._id)
-      this.eliminarNoticia(item._id);
+    deleteItemConfirm() {
+      console.log(this.editedItem._id);
+      this.eliminarNoticia(this.editedItem._id);
 
       this.closeDelete();
     },
@@ -378,6 +430,7 @@ export default {
       setTimeout(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
+        
         this.initialize();
       }, 300);
     },
@@ -387,6 +440,7 @@ export default {
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
+        this.$refs.form.resetValidation()
       });
       this.initialize();
     },
@@ -401,6 +455,7 @@ export default {
       }
       
       this.close();
+      
     },
     agregarNoticia() {
       this.axios
@@ -442,6 +497,13 @@ export default {
           console.log(e.response);
         });
     },
+    logout(){
+      localStorage.removeItem('jwtToken')
+      this.$router.push({
+        name:'Inicio sesion'
+      })
+
+    }
   },
 };
 </script>

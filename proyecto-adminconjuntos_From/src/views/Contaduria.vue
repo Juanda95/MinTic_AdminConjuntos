@@ -17,7 +17,7 @@
             />
           </v-avatar>
           <h3 class="black--text ml-3 font-weight-bold headline" Roboto>
-            {{ usuario.tipoUsuario }}
+            Administrador
           </h3>
         </v-row>
         <v-row>
@@ -30,7 +30,7 @@
         <v-flex class="align-left">
           <v-list-item align-left>
             <v-list-item-content>
-              <p class="white--text text-h5 mt-5">Nombre del Condominio</p>
+              <p class="white--text text-h5 mt-5">{{usuario.informacion.condominio}}</p>
               <p class="white--text mb-0">
                 Proyecto administrador del Condominio
               </p>
@@ -39,7 +39,7 @@
         </v-flex>
         <hr color="gray" class="ml-2 mr-2" />
         <v-flex class="ml-0 mb-0">
-          <div v-if="usuario.admin">
+          <div v-if="usuario.tipoUsuario===1">
             <v-list class="" dense>
               <v-list-item
                 v-for="itemAdmin in itemsAdmin"
@@ -283,6 +283,9 @@
           </v-dialog>
         </v-toolbar>
       </template>
+      <template v-slot:[`item.Fecha`]="{ item }">
+        {{ new Date(item.Fecha) | dateFormat('DD/MM/YYYY') }}
+      </template>
       <template v-slot:[`item.actions`]="{ item }">
         <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
         <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
@@ -314,6 +317,12 @@
 </style>
 
 <script>
+import jwt_decode from 'jwt-decode'
+import Vue from 'vue';
+import VueFilterDateFormat from '@vuejs-community/vue-filter-date-format';
+
+Vue.use(VueFilterDateFormat);
+
 export default {
   name: "Contaduria",
   data() {
@@ -353,13 +362,9 @@ export default {
         },
       ],
       usuario: {
-        Nombre: "Juan",
-        Apellido: "Elkin",
-        tipoUsuario: "Administrador",
-        admin: true,
-        Torre: "A",
-        Apartamento: 202,
-      },
+        informacion:{
+          condominio:""
+        }},
       dialogDelete: false,
       headers: [
         {
@@ -410,8 +415,36 @@ export default {
       val || this.closeDelete();
     },
   },
-  mounted() {
-    this.initialize();
+  
+  beforeCreate () {
+    this.axios.defaults.headers.common['Authorization']= localStorage.getItem(
+      'jwtToken'
+    )
+    this.axios
+        .get("/Contaduria/all")
+        .then((res) => {
+          console.log(res.data);
+
+          this.datosPagos = res.data;
+          const token= localStorage.getItem('jwtToken').split(' ')[1];
+          var token_decode=jwt_decode(token);
+          //this.usuario.push(token_decode)
+          this.usuario=token_decode;
+          if(this.usuario.tipoUsuario===2){
+            this.$router.push({
+              name:'Home'
+            })
+          }
+          
+        })
+        .catch((e) => {
+          console.log(e.response);
+          if(e.response.status===403||e.response.status===401){
+            this.$router.push({
+              name:'Inicio sesion'
+            })
+          }
+        });
   },
   methods: {
     initialize() {

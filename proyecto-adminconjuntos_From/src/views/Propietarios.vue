@@ -32,7 +32,7 @@
         <v-flex class="align-left">
           <v-list-item align-left>
             <v-list-item-content>
-              <p class="white--text text-h5 mt-5">Nombre del Condominio</p>
+              <p class="white--text text-h5 mt-5 ">{{usuario.informacion.condominio}}</p>
               <p class="white--text mb-0">
                 Proyecto administrador del Condominio
               </p>
@@ -41,7 +41,7 @@
         </v-flex>
         <hr color="gray" class="ml-2 mr-2" />
         <v-flex class="ml-0 mb-0">
-          <div v-if="usuario.admin">
+          <div v-if="usuario.tipoUsuario===1">
             <v-list class="" dense>
               <v-list-item
                 v-for="itemAdmin in itemsAdmin"
@@ -72,133 +72,137 @@
         </v-row>
       </v-layout>
     </v-navigation-drawer>
+    <div class="" color="#EDE7D9">
+      <v-card class="mx-auto mt-3" elevation="10" width="700">
+        <v-card-title>
+          <span class="text-h5">{{ formTitle }}</span>
+        </v-card-title>
+        <v-form ref="form" v-model="form">
+          <v-row class="px-10">
+            <v-col cols="12" md="4">
+              <v-text-field
+                v-model="editedItem.informacion.Nombre"
+                :rules="nameRules"
+                :counter="30"
+                label="Nombre y Apellido"
+                required
+              ></v-text-field>
+            </v-col>
 
-    <v-card class="mx-auto mt-3" elevation="10" width="700">
-      <v-card-title>
-        <span class="text-h5">{{ formTitle }}</span>
-      </v-card-title>
-      <v-form ref="form" v-model="form">
-        <v-row class="px-10">
-          <v-col cols="12" md="4">
-            <v-text-field
-              v-model="editedItem.informacion.Nombre"
-              :rules="nameRules"
-              :counter="30"
-              label="Nombre y Apellido"
-              required
-            ></v-text-field>
-          </v-col>
+            <v-col cols="12" md="2">
+              <v-text-field
+                v-model="editedItem.informacion.Torre"
+                :rules="torreRules"
+                :counter="1"
+                label="Torre"
+                required
+              ></v-text-field>
+            </v-col>
 
-          <v-col cols="12" md="2">
-            <v-text-field
-              v-model="editedItem.informacion.Torre"
-              :rules="torreRules"
-              :counter="1"
-              label="Torre"
-              required
-            ></v-text-field>
-          </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model="editedItem.informacion.Correo"
+                :rules="emailRules"
+                label="Correo"
+                required
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row class="px-10">
+            <v-col cols="12" md="4">
+              <v-text-field
+                v-model="editedItem.cedula"
+                :rules="cedulaRules"
+                type="number"
+                :counter="10"
+                label="Cedula"
+                required
+              ></v-text-field>
+            </v-col>
 
-          <v-col cols="12" md="6">
-            <v-text-field
-              v-model="editedItem.informacion.Correo"
-              :rules="emailRules"
-              label="Correo"
-              required
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row class="px-10">
-          <v-col cols="12" md="4">
-            <v-text-field
-              v-model="editedItem.cedula"
-              :rules="cedulaRules"
-              type="number"
-              :counter="10"
-              label="Cedula"
-              required
-            ></v-text-field>
-          </v-col>
+            <v-col cols="12" md="3">
+              <v-text-field
+                v-model="editedItem.informacion.Apartamento"
+                :rules="apartamentoRules"
+                type="number"
+                :counter="3"
+                label="Apartamento"
+                required
+              ></v-text-field>
+            </v-col>
 
-          <v-col cols="12" md="3">
-            <v-text-field
-              v-model="editedItem.informacion.Apartamento"
-              :rules="apartamentoRules"
-              type="number"
-              :counter="3"
-              label="Apartamento"
-              required
-            ></v-text-field>
-          </v-col>
-
-          <v-col cols="12" md="5">
-            <v-text-field
-              color="purple"
-              label="Phone number"
-              :rules="numeroRules"
-              v-model="editedItem.informacion.Celular"
-              type="text"
-              maxlength="14"
-              @input="acceptNumber"
-              required
-            ></v-text-field>
-          </v-col>
-        </v-row>
-      </v-form>
-      <v-divider></v-divider>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn text color="purple" @click="close()">
-          Limpiar
-        </v-btn>
-        <v-btn
-          :disabled="!form"
-          class="white--text"
-          color="deep-purple accent-4"
-          depressed
-          @click="save"
-        >
-          Aceptar
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-    <br />
-    <v-data-table
-      :headers="headers"
-      :items="Propietarios"
-      sort-by="cedula"
-      class="elevation-1"
-    >
-      <template v-slot:top>
-        <v-dialog v-model="dialogDelete" max-width="500px">
-          <v-card>
-            <v-card-title class="ml-2 text-h5">
-              ¿Seguro que desea eliminar el Registro?</v-card-title
-            >
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="closeDelete"
-                >Cancelar</v-btn
+            <v-col cols="12" md="5">
+              <v-text-field
+                color="purple"
+                label="Phone number"
+                :rules="numeroRules"
+                v-model="editedItem.informacion.Celular"
+                type="text"
+                maxlength="14"
+                @input="acceptNumber"
+                required
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </v-form>
+        <v-divider></v-divider>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text color="purple" @click="close()">
+            Limpiar
+          </v-btn>
+          <v-btn
+            :disabled="!form"
+            class="white--text"
+            color="deep-purple accent-4"
+            depressed
+            @click="save"
+          >
+            Aceptar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+      <br />
+      <v-data-table
+        :headers="headers"
+        :items="Propietarios"
+        sort-by="cedula"
+        class="elevation-1"
+      >
+        <template v-slot:top>
+          <v-dialog v-model="dialogDelete" max-width="500px">
+            <v-card>
+              <v-card-title class="ml-2 text-h5">
+                ¿Seguro que desea eliminar el Registro?</v-card-title
               >
-              <v-btn color="blue darken-1" text @click="deleteItemConfirm"
-                >OK</v-btn
-              >
-              <v-spacer></v-spacer>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </template>
-      <template v-slot:[`item.actions`]="{ item }">
-        <v-icon small class="mr-2" @click="editItem(item)"> mdi-pencil </v-icon>
-        <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
-      </template>
-    </v-data-table>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="closeDelete"
+                  >Cancelar</v-btn
+                >
+                <v-btn color="blue darken-1" text @click="deleteItemConfirm"
+                  >OK</v-btn
+                >
+                <v-spacer></v-spacer>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </template>
+        <template v-slot:[`item.actions`]="{ item }">
+          <v-icon small class="mr-2" @click="editItem(item)">
+            mdi-pencil
+          </v-icon>
+          <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+        </template>
+      </v-data-table>
+    </div>
   </v-container>
 </template>
 
 <style>
 .v-main {
-  background-color: #a49694;
+  background: #A49694;
+  background-size: auto;
 }
 .boton {
   position: absolute;
@@ -222,6 +226,8 @@
 </style>
 
 <script>
+import axios from 'axios'
+import jwt_decode from 'jwt-decode'
 export default {
   name: "Contaduria",
   data() {
@@ -247,17 +253,9 @@ export default {
         },
       ],
       usuario: {
-        cedula: 648648444,
-        tipoUsuario: 1,
-        admin: true,
-        informacion: {
-          Nombre: "Juan David Muñoz Velandia",
-          Correo: "Arq.juandavidmunoz@gmail.com",
-          Torre: "4",
-          Apartamento: "407",
-          Celular: "3116706261",
-          condominio: "agua bonita",
-        },
+        informacion:{
+          condominio:""
+        }
       },
       valid: true,
       nameRules: [
@@ -345,8 +343,36 @@ export default {
     },
   },
 
-  mounted() {
-    this.initialize();
+  beforeCreate() {
+    axios.defaults.headers.common['Authorization']= localStorage.getItem(
+      'jwtToken'
+    )
+    this.axios
+        .get("/Usuarios/all")
+        .then((res) => {
+          console.log(res.data);
+
+          this.Propietarios = res.data;
+          const token= localStorage.getItem('jwtToken').split(' ')[1];
+          var token_decode=jwt_decode(token);
+          //this.usuario.push(token_decode)
+          this.usuario=token_decode;
+          if(this.usuario.tipoUsuario===2){
+            this.$router.push({
+              name:'Home'
+            })
+          }
+        })
+        .catch((e) => {
+          console.log(e.response);
+          if(e.response.status===403||e.response.status===401){
+            this.$router.push({
+              name:'Inicio sesion'
+            })
+          }
+        });
+    
+  
   },
 
   methods: {
@@ -500,7 +526,7 @@ export default {
     },
 
     AgregarPropietario() {
-      this.editedItem.contraseña = this.editedItem.cedula;
+      this.editedItem.password = this.editedItem.cedula;
       this.editedItem.informacion.condominio = this.usuario.informacion.condominio;
       this.editedItem.tipoUsuario = 2;
       this.axios
