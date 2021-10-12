@@ -126,7 +126,7 @@ export default {
     onSubmit(){
       
       this.axios
-        .post(`http://localhost:2000/api/login`,this.login)
+        .post(`/login`,this.login)
         .then(res => {
           localStorage.setItem ('jwtToken',res.data.token)
           console.log(res.data)
