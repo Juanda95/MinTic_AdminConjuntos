@@ -10,7 +10,7 @@ import VueAxios from 'vue-axios'
 Vue.use(VueAxios, axios) 
 
 // Agregamos la URL base de nuestra API 
-axios.defaults.baseURL = 'http://localhost:2000/api';
+axios.defaults.baseURL = 'https://admin-conjuntos.herokuapp.com/api';
 
 new Vue({
   router,
