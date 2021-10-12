@@ -8,6 +8,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}))
 
+if (process.env.NODE_ENV === 'production'){
+  app.use(express.static(__dirname+'/site'))
+  app.use('*',(req,res)=>{
+    res.sendFile(__dirname + '/site/index.html')
+  })
+}
+
 // rutas
 app.use("/api",require("./src/routes/routes"));
 
