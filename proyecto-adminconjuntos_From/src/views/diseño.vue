@@ -380,7 +380,7 @@ export default {
         })
         .catch((e) => {
           console.log(e.response);
-          if(e.response.status===403||e.response.status===401){
+          if(e.status===403||e.status===401){
             this.$router.push({
               name:'Inicio_Sesion'
             })
