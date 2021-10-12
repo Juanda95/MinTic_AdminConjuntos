@@ -382,7 +382,7 @@ export default {
           console.log(e.response);
           if(e.response.status===403||e.response.status===401){
             this.$router.push({
-              name:'Inicio sesion'
+              name:'Inicio_Sesion'
             })
           }
         });    
