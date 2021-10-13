@@ -129,6 +129,7 @@ export default {
       this.axios
         .post("/login",this.login)
         .then(res => {
+          console.log(res.data.token);
           localStorage.setItem ('jwtToken',res.data.token)
           console.log(res.data)
           this.$router.push({
