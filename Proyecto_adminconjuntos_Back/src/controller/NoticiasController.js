@@ -35,7 +35,7 @@ module.exports = class NoticiasController {
       const result = await NoticiaModel.find().sort({fecha:-1});
       response.status(200).json(result);
     }else{
-      return response.status(40).send({success: false, msg:'No esta autorizado!'})
+      return response.status(401).send({success: false, msg:'No esta autorizado!'})
     }
     } catch (err) {
       response.status(404).json({message: err.message});
