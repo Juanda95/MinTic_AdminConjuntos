@@ -7,7 +7,7 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    name: 'Inicio sesion',
+    name: 'Inicio_Sesion',
     component: ()=> import('../views/Inicio_Sesion.vue')
   },
   {

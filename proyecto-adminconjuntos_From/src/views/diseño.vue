@@ -500,7 +500,7 @@ export default {
     logout(){
       localStorage.removeItem('jwtToken')
       this.$router.push({
-        name:'Inicio sesion'
+        name:'Inicio_Sesion'
       })
 
     }
